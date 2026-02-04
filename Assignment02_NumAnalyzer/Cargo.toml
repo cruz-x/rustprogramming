@@ -1,0 +1,10 @@
+[package]
+name = "Assignment02_NumAnalyzer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+name = "number_analyzer"
+path = "src/number_analyzer.rs"
