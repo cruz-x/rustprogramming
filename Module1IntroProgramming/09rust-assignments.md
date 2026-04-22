@@ -22,7 +22,7 @@ Create a Rust program that analyzes a series of numbers. The program should:
 2. Implement a function `is_even(n: i32) -> bool` that returns true if a number is even, false otherwise.
 3. Use a for loop to iterate through the array and for each number:
    - Print whether it's even or odd using your `is_even` function
-   - If the number is divisible by 3, print "Fizz" instead
+   - Ifthe numbe r is divisible by 3, print "Fizz" instead
    - If the number is divisible by 5, print "Buzz" instead
    - If it's divisible by both 3 and 5, print "FizzBuzz"
 4. Use a while loop to find and print the sum of all numbers in the array.
@@ -39,7 +39,7 @@ Create a simple number guessing game in Rust. The program should:
    - -1 if the guess is too low
 3. In the main function:
    - Use a loop to repeatedly:
-     - Set a mutable guess variable to a number of your choice (simulating user input)
+     - Set a mutable guess variable to a number of your choice (simulating    user input)
      - Call the `check_guess` function
      - Use an if-else expression to print whether the guess was correct, too high, or too low
      - If the guess was correct, break the loop

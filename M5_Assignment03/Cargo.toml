@@ -1,0 +1,10 @@
+[package]
+name = "M5_Assignment03"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+
+[[bin]]
+name = "M5_Assignment03"
+path = "src/bank_account.rs"
