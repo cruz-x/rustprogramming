@@ -8,9 +8,14 @@ use std::sync::atomic::{AtomicU32, AtomicU64, Ordering};
 use std::fs::File;
 use std::io::Write;
 
-// --- DATA STRUCTURES ---
+
+
+
+
 #[derive(Debug, Clone)]
 enum TaskKind { CPU, IO }
+
+
 
 #[derive(Debug, Clone)]
 struct Task {
@@ -20,13 +25,17 @@ struct Task {
     duration: Duration,
 }
 
+
+
+
 struct Metrics {
     total_completed: AtomicU32,
     total_wait_time_ms: AtomicU64,
     total_turnaround_time_ms: AtomicU64,
 }
 
-// --- WORKLOAD GENERATION (STRESSED) ---
+
+
 fn generate_tasks(count: usize, seed: u64) -> Vec<Task> {
     let mut rng = Pcg64::seed_from_u64(seed);
     let mut tasks = Vec::new();
@@ -38,12 +47,17 @@ fn generate_tasks(count: usize, seed: u64) -> Vec<Task> {
             id: i as u32,
             created_at: start_time,
             kind,
-            // STRESS: Tasks now take 1000ms to 3000ms (1-3 seconds)
             duration: Duration::from_millis(rng.gen_range(1000..3000)),
         });
     }
     tasks
 }
+
+
+
+
+
+
 
 fn main() {
     let num_workers = 4; 
@@ -56,6 +70,7 @@ fn main() {
         total_wait_time_ms: AtomicU64::new(0),
         total_turnaround_time_ms: AtomicU64::new(0),
     });
+
 
     println!("!!! STARTING EXPERIMENT B: STRESSED WORKLOAD !!!");
 
@@ -89,15 +104,16 @@ fn main() {
         handles.push(handle);
     }
 
-    // --- DISPATCHING (BURST ARRIVAL) ---
+  
     for task in tasks {
         tx.send(Some(task)).unwrap();
-        // STRESS: Tasks arrive every 1ms (super fast burst)
+        
         thread::sleep(Duration::from_millis(1)); 
     }
 
     for _ in 0..num_workers { tx.send(None).unwrap(); }
     for handle in handles { handle.join().unwrap(); }
+
 
     let total_time = system_start.elapsed();
     let completed = metrics.total_completed.load(Ordering::SeqCst);
@@ -114,9 +130,12 @@ fn main() {
         completed, total_time, avg_wait, avg_turnaround
     );
 
+
+
     println!("{}", report);
 
-    // SAVE TO B FILE
+    
+
     let mut file = File::create("experiment_results_b.txt").expect("File error");
     file.write_all(report.as_bytes()).expect("Write error");
     println!("Experiment B results saved to experiment_results_B.txt");
