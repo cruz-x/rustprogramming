@@ -1,0 +1,66 @@
+- report also attached in brightspace -
+
+
+Concurrent Task Dispatcher (Rust)
+Report
+Mario Trevino
+
+
+
+
+
+
+
+
+
+
+
+For this project, I built a concurrent task dispatcher in Rust that simulates how an operating system or a web server might handle a heavy workload. The goal was to create a system that doesn't just run tasks one by one, but instead manages a "Ready Queue" and uses a pool of 4 worker threads to process everything as efficiently as possible. I focused on making the system fast and stable, prioritizing the total runtime.
+
+The design in my system uses a Producer-Consumer architecture. Within this architecture, there exist 2 threads, or major components: The Dispatcher and The Worker.
+
+The Dispatcher: This is the main thread. This acts as the Producer. It generates the workload that the workers are going to consume. It has a fixed seed, and it simulates task arrival over time using ‘ thread::sleep, ‘ and it pushes tasks into the channel.
+
+The Worker: These are the consumer threads. This is a bounded pool. These threads live for the duration of the program, and they pull tasks from the shared queue and simulate execution.
+
+There are two primary pieces of data shared across thread boundaries: the ready queue and the system metrics. 
+
+The Ready Queue (Receiver): The receiving end of the mpsc channel is shared among all 4 workers. It is protected by an Arc<Mutex<Receiver<Option<Task>>>>. 
+The Mutex ensures only one worker can grab a task at a time, preventing race conditions.
+
+System Metrics: Statistics like total_completed and total_wait_time are shared. These are protected using Atomic Primitives (AtomicU32, AtomicU64) with SeqCst ordering to allow high-speed updates without lock contention.
+
+An mpsc channel was used for the main task queue. It’s basically the "bridge" between the dispatcher and the workers. I chose this because it’s a very clean way to move a task from one thread to another without worrying about the data getting corrupted. The dispatcher just drops a task in one end, and the workers pull it out of the other.
+
+A shared state for the metrics (the results) was also used. Since every worker needs to report back when they finish a task, I used a shared metrics struct. I used Atomics here since the total runtime was one of the main goals of this experiment. If I used a channel or a lock for every single stat update, it would slow the whole system down.
+
+For the scheduling policy, I went with FIFO, which stands for first in, first out. It’s the simplest and most direct way to do this. Basically, whichever task shows up first is the one that gets handled first.
+The main thing that improved from this was the total runtime. Since FIFO is so simple, the computer doesn't have to spend any extra time thinking or sorting tasks.
+
+The downside is that if a huge task gets in the way, everything else has to sit and wait behind it, even if those other tasks only take a millisecond. You can really see this in my Experiment B results, where the wait times got huge because the queue got backed up.
+
+The biggest wall I had hit was that the program wouldn't actually finish. The workers would just sit there forever waiting for more tasks, even after the 500 tasks were done. The terminal would just hang, and I’d have to manually kill it.
+
+I used a "Poison Pill" fix that was suggested by Gemini AI. I wrapped the tasks in an option. When the dispatcher is finally out of work, it sends a ‘none’ signal to every worker. When a worker sees that ‘none’, it knows there’s no more work coming, so it finally breaks its loop and shuts down properly. This fixed the hanging issue.
+
+Unfairness / Starvation could still happen if the system gets flooded with heavy CPU tasks. Since there’s no priority system, a "light" task could be stuck at the back of the line for a long time. It doesn't "starve" forever, but it definitely isn't treated as fairly just because it’s short.
+
+EXPERIMENT RESULTS:
+
+
+--- FINAL METRICS REPORT (EXPERIMENT A) ---
+Total Tasks Completed: 500
+Makespan (Total Runtime): 37.613715937s
+Average Wait Time: 18488.20 ms
+Average Turnaround Time: 18787.07 ms
+----------------------------
+
+
+--- FINAL METRICS REPORT (EXPERIMENT B) ---
+Total Tasks Completed: 500
+Makespan (Total Runtime): 250.211535714s
+Average Wait Time: 122845.41 ms
+Average Turnaround Time: 124840.70 ms
+-------------------------------------------
+
+
