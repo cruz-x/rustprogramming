@@ -1,0 +1,7 @@
+
+--- FINAL METRICS REPORT (EXPERIMENT B) ---
+Total Tasks Completed: 500
+Makespan (Total Runtime): 250.211535714s
+Average Wait Time: 122845.41 ms
+Average Turnaround Time: 124840.70 ms
+-------------------------------------------

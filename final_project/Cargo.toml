@@ -1,0 +1,16 @@
+[package]
+name = "final_project"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+rand = "0.8"
+rand_pcg = "0.3"
+
+[[bin]]
+name = "experiment_a"
+path = "src/experiment_a.rs"
+
+[[bin]]
+name = "experiment_b"
+path = "src/experiment_b.rs"

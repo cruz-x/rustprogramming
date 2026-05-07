@@ -1,0 +1,7 @@
+
+--- FINAL METRICS REPORT ---
+Total Tasks Completed: 500
+Makespan (Total Runtime): 37.613715937s
+Average Wait Time: 18488.20 ms
+Average Turnaround Time: 18787.07 ms
+----------------------------
